@@ -1,24 +1,20 @@
-﻿using CouponsLtd.DomainModels;
-using CouponsLtd.Filters;
+﻿using CouponsLtd.Filters;
 using CouponsLtd.Models;
+using CouponsLtd.UpsertModels;
+using CouponsLtd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
 {
-
+    [ApiKeyAuth]
     [ApiController]
     [Route("api/v1/coupons")]
     public class CouponsController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
         private readonly ILogger<CouponsController> _logger;
 
@@ -49,7 +45,33 @@ namespace CouponsLtd.Controllers
                 }
             };
 
-            return Ok(Task.FromResult( new Response<List<CouponVM>>(coupons)));
+            return Ok(Task.FromResult(new Response<List<CouponVM>>(coupons)));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SearchCoupons(SearchParams searchParams)
+        {
+            var coupons = new List<CouponVM>
+            {
+                new CouponVM(){
+                    Description="Some coupon description",
+                    Id=Guid.NewGuid(),
+                    Name="SomeWeb.com"
+                },
+                new CouponVM(){
+                    Description="Some other coupon description",
+                    Id=Guid.NewGuid(),
+                    Name="OtherWeb.com"
+                },
+            };
+
+            return Ok(Task.FromResult(new Response<List<CouponVM>>(coupons)));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActivateBonus(Guid CouponId, string promoCode)
+        {
+            return Ok(Task.FromResult(new Response<string>("Activated")));
         }
     }
 }
