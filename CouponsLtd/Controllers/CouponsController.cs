@@ -1,5 +1,6 @@
 ﻿using CouponsLtd.Filters;
 using CouponsLtd.Models;
+using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
 using CouponsLtd.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -17,16 +18,19 @@ namespace CouponsLtd.Controllers
     {
 
         private readonly ILogger<CouponsController> _logger;
+        private readonly CouponService _couponService;
 
-        public CouponsController(ILogger<CouponsController> logger)
+        public CouponsController(ILogger<CouponsController> logger,CouponService couponService)
         {
             _logger = logger;
+            this._couponService = couponService;
         }
 
 
         [HttpPost("searchcoupons")]
         public async Task<IActionResult> SearchCoupons([FromBody] SearchParams searchParams)
         {
+           var x=await  _couponService.GetCoupons();
             var coupons = new List<CouponVM>
             {
                 new CouponVM(){
