@@ -10,7 +10,7 @@ namespace CouponsLtd.Filters
     [AttributeUsage(AttributeTargets.Class|AttributeTargets.Method)]
     public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
     {
-        private const string ApiHeaderName = "ApiKey";
+        private const string ApiHeaderName = "x-api-key";
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {

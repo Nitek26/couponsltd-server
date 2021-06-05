@@ -23,33 +23,9 @@ namespace CouponsLtd.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCoupons()
-        {
-            var coupons = new List<CouponVM>
-            {
-                new CouponVM(){
-                    Description="Some coupon description",
-                    Id=Guid.NewGuid(),
-                    Name="SomeWeb.com"
-                },
-                new CouponVM(){
-                    Description="Some other coupon description",
-                    Id=Guid.NewGuid(),
-                    Name="OtherWeb.com"
-                },
-                new CouponVM(){
-                    Description="Some different description",
-                    Id=Guid.NewGuid(),
-                    Name="DifferentWeb.com"
-                }
-            };
 
-            return Ok(Task.FromResult(new Response<List<CouponVM>>(coupons)));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SearchCoupons(SearchParams searchParams)
+        [HttpPost("searchcoupons")]
+        public async Task<IActionResult> SearchCoupons([FromBody] SearchParams searchParams)
         {
             var coupons = new List<CouponVM>
             {
@@ -68,8 +44,8 @@ namespace CouponsLtd.Controllers
             return Ok(Task.FromResult(new Response<List<CouponVM>>(coupons)));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ActivateBonus(Guid CouponId, string promoCode)
+        [HttpPost("activatebonus/{couponId:guid}/{promoCode}")]
+        public async Task<IActionResult> ActivateBonus(Guid couponId, string promoCode)
         {
             return Ok(Task.FromResult(new Response<string>("Activated")));
         }

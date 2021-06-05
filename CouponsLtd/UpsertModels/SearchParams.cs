@@ -6,5 +6,6 @@
         public int Skip { get; set; }
         public int Count { get; set; }
         public int Limit{ get; set; }
+        public string OrderBy { get; set; }
     }
 }
