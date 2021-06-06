@@ -21,8 +21,6 @@ namespace CouponsLtd
 {
     public class Startup
     {
-        private const string ApiHeaderName = "x-api-key";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,6 +39,7 @@ namespace CouponsLtd
             services.AddControllers();
             services.AddCors();
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddScoped<UnitOfWork, UnitOfWork>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<CouponService, CouponService>();
             services.AddSwaggerGen(c =>

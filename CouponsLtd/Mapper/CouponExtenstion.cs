@@ -1,5 +1,6 @@
 ﻿using CouponsLtd.Data.Entities;
 using CouponsLtd.DomainModels;
+using CouponsLtd.Models;
 using CouponsLtd.UpsertModels;
 using System.Collections.Generic;
 
@@ -16,7 +17,6 @@ namespace CouponsLtd.Mapper
                 {
                     Id = d.Id,
                     Description = d.Description,
-                    IsActived = false,//need to add some logic to map it with user
                     Name = d.Name
                 };
 
@@ -36,8 +36,27 @@ namespace CouponsLtd.Mapper
                     Id = System.Guid.NewGuid(),
                     Description = c.Description,
                     Name = c.Name,
-                    Code=c.Code,
-                    Created=System.DateTime.UtcNow
+                    Code = c.Code,
+                    Created = System.DateTime.UtcNow
+                };
+
+                mappedData.Add(coupon);
+            }
+
+            return mappedData;
+        }
+
+        public static List<CouponVM> MapToCouponVM(this List<Coupon> coupons)
+        {
+            var mappedData = new List<CouponVM>();
+            foreach (var c in coupons)
+            {
+                var coupon = new CouponVM()
+                {
+                    Id=c.Id,
+                    Description = c.Description,
+                    Name = c.Name,
+                    IsActived = c.IsActived
                 };
 
                 mappedData.Add(coupon);

@@ -1,4 +1,5 @@
 ﻿using CouponsLtd.Data.Entities;
+using CouponsLtd.Mapper;
 using CouponsLtd.Models;
 using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
@@ -8,8 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
@@ -28,8 +27,8 @@ namespace CouponsLtd.Controllers
             CouponService couponService, IHttpContextAccessor context)
         {
             _logger = logger;
-            this._couponService = couponService;
-            this._context = context;
+            _couponService = couponService;
+            _context = context;
         }
 
         [HttpPost("searchcoupons")]
@@ -37,22 +36,9 @@ namespace CouponsLtd.Controllers
         {
             Guid userId = ((UserDAO)_context.HttpContext.Items["User"]).Id;
 
-            var x = await _couponService.GetCoupons();
-            var coupons = new List<CouponVM>
-            {
-                new CouponVM(){
-                    Description="Some coupon description",
-                    Id=Guid.NewGuid(),
-                    Name="SomeWeb.com"
-                },
-                new CouponVM(){
-                    Description="Some other coupon description",
-                    Id=Guid.NewGuid(),
-                    Name="OtherWeb.com"
-                },
-            };
-
-            return Ok(Task.FromResult(new Response<List<CouponVM>>(coupons)));
+            var coupons = await _couponService.GetCoupons(searchParams, userId);
+            List<CouponVM> couponsVM = coupons.MapToCouponVM();
+            return Ok(Task.FromResult(new CollectionResponse<CouponVM>(couponsVM, searchParams)));
         }
 
         [HttpPost("activatebonus/{couponId:guid}/{promoCode}")]
