@@ -17,15 +17,13 @@ namespace CouponsLtd.Controllers
         private readonly ILogger<MocksController> _logger;
         private readonly CouponService _couponService;
         private readonly IUserService _userService;
-        private readonly IWebHostEnvironment _environment;
 
         public MocksController(ILogger<MocksController> logger,
-            CouponService couponService, IUserService userService, IWebHostEnvironment environment)
+            CouponService couponService, IUserService userService)
         {
             _logger = logger;
             this._couponService = couponService;
             this._userService = userService;
-            this._environment = environment;
         }
 
         public IWebHostEnvironment Environment { get; }
