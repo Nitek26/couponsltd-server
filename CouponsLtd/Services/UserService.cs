@@ -3,6 +3,7 @@ using CouponsLtd.Data.Entities;
 using CouponsLtd.Helpers;
 using CouponsLtd.UpsertModels;
 using CouponsLtd.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -20,9 +21,13 @@ namespace CouponsLtd.Services
     {
         private readonly AppSettings _appSettings;
         private readonly ApplicationDbContext _applicationDbContext;
-        public UserService(ApplicationDbContext applicationDbContext, IOptions<AppSettings> appSettings)
+        private readonly IWebHostEnvironment _environment;
+
+        public UserService(ApplicationDbContext applicationDbContext,
+            IOptions<AppSettings> appSettings, IWebHostEnvironment environment)
         {
             this._applicationDbContext = applicationDbContext;
+            this._environment = environment;
             this._appSettings = appSettings.Value;
 
         }
@@ -44,31 +49,40 @@ namespace CouponsLtd.Services
             return new AuthenticateResponse(user, token);
         }
 
-        public async Task<UserDAO> Create(UserUpsert user)
+        public async Task<bool> CreateUsers(List<UserUpsert> users, bool usePrefilledData)
         {
-            if (string.IsNullOrWhiteSpace(user.Password))
-                throw new Exception("Password is required");
-
-            if (await _applicationDbContext.Users.AnyAsync(x => x.Username == user.Username))
-                throw new Exception($"Username {user.Username} is already taken");
-
-            byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(user.Password, out passwordHash, out passwordSalt);
-
-            var userDao = new UserDAO()
+            if (usePrefilledData)
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.Username,
-                Id = Guid.NewGuid(),
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
-            };
+                users = JsonHelper.LoadFromJson<List<UserUpsert>>(_environment.ContentRootPath + "/Data/Mocks/users.json");
+            }
 
-            await _applicationDbContext.Users.AddAsync(userDao);
+            foreach (var user in users)
+            {
+                if (string.IsNullOrWhiteSpace(user.Password))
+                    continue;
+
+                if (await _applicationDbContext.Users.AnyAsync(x => x.Username == user.UserName))
+                    continue;
+
+                byte[] passwordHash, passwordSalt;
+                CreatePasswordHash(user.Password, out passwordHash, out passwordSalt);
+
+                var userDao = new UserDAO()
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Username = user.UserName,
+                    Id = Guid.NewGuid(),
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt
+                };
+
+                await _applicationDbContext.Users.AddAsync(userDao);
+            }
+
             await _applicationDbContext.SaveChangesAsync();
 
-            return userDao;
+            return true;
         }
 
         public UserDAO GetById(Guid id)

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/users")]
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
@@ -27,15 +28,6 @@ namespace CouponsLtd.Controllers
             return Ok(response);
         }
 
-        [HttpPost("createmockusers")]
-        public async Task<IActionResult> CreateMockUsers(UserUpsert user)
-        {
-            var response = await _userService.Create(user);
-
-            if (response==null)
-                return BadRequest(new { message = "Something went wrong" });
-
-            return Ok(response);
-        }
+      
     }
 }

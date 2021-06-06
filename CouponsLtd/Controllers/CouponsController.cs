@@ -25,7 +25,6 @@ namespace CouponsLtd.Controllers
             this._couponService = couponService;
         }
 
-
         [HttpPost("searchcoupons")]
         public async Task<IActionResult> SearchCoupons([FromBody] SearchParams searchParams)
         {
