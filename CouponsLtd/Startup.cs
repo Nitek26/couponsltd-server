@@ -1,4 +1,5 @@
 using CouponsLtd.Data;
+using CouponsLtd.Helpers;
 using CouponsLtd.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Helpers;
 
 namespace CouponsLtd
 {
@@ -35,33 +37,42 @@ namespace CouponsLtd
                                options.UseSqlServer(
                                    Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
+            services.AddCors();
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<CouponService, CouponService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CouponsLtd Api", Version = "v1" }
             );
 
-                c.AddSecurityDefinition(ApiHeaderName, new OpenApiSecurityScheme
+                // Bearer token authentication
+                OpenApiSecurityScheme securityDefinition = new OpenApiSecurityScheme()
                 {
-                    Description = "Api key needed to access the endpoints. X-Api-Key: My_API_Key",
+                    Name = "Bearer",
+                    BearerFormat = "JWT",
+                    Scheme = "bearer",
+                    Description = "Specify the authorization token.",
                     In = ParameterLocation.Header,
-                    Name = ApiHeaderName,
-                    Type = SecuritySchemeType.ApiKey
-                });
+                    Type = SecuritySchemeType.Http,
+                };
+                c.AddSecurityDefinition("jwt_auth", securityDefinition);
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                // Make sure swagger UI requires a Bearer token specified
+                OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme()
                 {
+                    Reference = new OpenApiReference()
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Name = ApiHeaderName,
-                            Type = SecuritySchemeType.ApiKey,
-                            In = ParameterLocation.Header,
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = ApiHeaderName },
-                        },
-                        new string[] {}
+                        Id = "jwt_auth",
+                        Type = ReferenceType.SecurityScheme
                     }
-                });
+                };
+                OpenApiSecurityRequirement securityRequirements = new OpenApiSecurityRequirement()
+{
+    {securityScheme, new string[] { }},
+};
+                c.AddSecurityRequirement(securityRequirements);
+
             });
         }
 
@@ -79,12 +90,15 @@ namespace CouponsLtd
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "CouponsLtd Api V1");
             });
 
-
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseCors(x => x
+                 .AllowAnyOrigin()
+                 .AllowAnyMethod()
+                 .AllowAnyHeader());
+
+            // custom jwt auth middleware
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

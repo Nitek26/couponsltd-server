@@ -1,5 +1,4 @@
-﻿using CouponsLtd.Filters;
-using CouponsLtd.Models;
+﻿using CouponsLtd.Models;
 using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
 using CouponsLtd.ViewModels;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
 {
-    [ApiKeyAuth]
+    [Authorize]
     [ApiController]
     [Route("api/v1/coupons")]
     public class CouponsController : ControllerBase
