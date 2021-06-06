@@ -79,6 +79,9 @@ namespace CouponsLtd.Services
             //for bigger data sets it should be bulk update
             foreach (var c in mappedCoupons)
             {
+                var couponDAO = (await _unitOfWork.Coupons.GetAsync(0, 1, x => x.Code == c.Code && x.Name==c.Name)).FirstOrDefault();
+                if (couponDAO != null)
+                    continue;
                 _unitOfWork.Coupons.Insert(c);
             }
 
