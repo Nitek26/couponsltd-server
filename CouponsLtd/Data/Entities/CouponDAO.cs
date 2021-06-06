@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CouponsLtd.Data.Entities
 {
+    [Table("Coupon")]
     public class CouponDAO
     {
         public Guid Id { get; set; }

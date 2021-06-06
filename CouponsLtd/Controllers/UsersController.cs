@@ -1,6 +1,7 @@
 ﻿using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
 {
@@ -16,9 +17,9 @@ namespace CouponsLtd.Controllers
         }
 
         [HttpPost("authenticate")]
-        public IActionResult Authenticate(AuthenticateRequest model)
+        public async Task<IActionResult> Authenticate(AuthenticateRequest model)
         {
-            var response = _userService.Authenticate(model);
+            var response = await _userService.Authenticate(model);
 
             if (response == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -26,12 +27,15 @@ namespace CouponsLtd.Controllers
             return Ok(response);
         }
 
-        [Authorize]
-        [HttpGet]
-        public IActionResult GetAll()
+        [HttpPost("createmockusers")]
+        public async Task<IActionResult> CreateMockUsers(UserUpsert user)
         {
-            var users = _userService.GetAll();
-            return Ok(users);
+            var response = await _userService.Create(user);
+
+            if (response==null)
+                return BadRequest(new { message = "Something went wrong" });
+
+            return Ok(response);
         }
     }
 }

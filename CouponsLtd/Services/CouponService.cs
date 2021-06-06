@@ -20,7 +20,7 @@ namespace CouponsLtd.Services
 
         public async Task<List<Coupon>> GetCoupons()
         {
-            var data=await _applicationDbContext.Coupon.AsNoTracking().ToListAsync();
+            var data=await _applicationDbContext.Coupons.AsNoTracking().ToListAsync();
             var mappedData = data.MapToCoupon();
             return mappedData;
         }
