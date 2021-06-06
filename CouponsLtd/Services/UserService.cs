@@ -37,7 +37,7 @@ namespace CouponsLtd.Services
             if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
                 return null;
 
-            var user = await _applicationDbContext.Users.SingleOrDefaultAsync(x => x.Username == model.Username);
+            var user = await _applicationDbContext.Users.SingleOrDefaultAsync(x => x.UserName == model.Username);
 
             if (user == null)
                 return null;
@@ -61,7 +61,7 @@ namespace CouponsLtd.Services
                 if (string.IsNullOrWhiteSpace(user.Password))
                     continue;
 
-                if (await _applicationDbContext.Users.AnyAsync(x => x.Username == user.UserName))
+                if (await _applicationDbContext.Users.AnyAsync(x => x.UserName == user.UserName))
                     continue;
 
                 byte[] passwordHash, passwordSalt;
@@ -71,10 +71,11 @@ namespace CouponsLtd.Services
                 {
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Username = user.UserName,
+                    UserName = user.UserName,
                     Id = Guid.NewGuid(),
                     PasswordHash = passwordHash,
-                    PasswordSalt = passwordSalt
+                    PasswordSalt = passwordSalt,
+                    Created = System.DateTime.UtcNow
                 };
 
                 await _applicationDbContext.Users.AddAsync(userDao);

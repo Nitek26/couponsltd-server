@@ -47,9 +47,10 @@ namespace CouponsLtd.Controllers
         }
 
         [HttpPost("activatebonus/{couponId:guid}/{promoCode}")]
-        public async Task<IActionResult> ActivateBonus(Guid couponId, string promoCode)
+        public async Task<IActionResult> ActivateBonus(Guid couponId, Guid userId, string promoCode)
         {
-            return Ok(Task.FromResult(new Response<string>("Activated")));
+           var result= await _couponService.ActivateCoupon(userId, couponId, promoCode);
+            return Ok(result);
         }
     }
 }

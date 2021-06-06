@@ -1,10 +1,12 @@
 ﻿using CouponsLtd.Data;
+using CouponsLtd.Data.Entities;
 using CouponsLtd.DomainModels;
 using CouponsLtd.Helpers;
 using CouponsLtd.Mapper;
 using CouponsLtd.UpsertModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -28,6 +30,29 @@ namespace CouponsLtd.Services
             return mappedData;
         }
 
+        public async Task<bool> ActivateCoupon(Guid userId, Guid couponId, string promoCode)
+        {
+            var coupon = await _applicationDbContext.Coupons.SingleOrDefaultAsync(x => x.Id == couponId);
+            if (promoCode != coupon.Code)
+            {
+                return false;
+            }
+
+            var userCoupon = new UserCouponDAO()
+            {
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                Activated = System.DateTime.UtcNow,
+                CouponId = couponId,
+                UserId = userId
+            };
+
+            await _applicationDbContext.UsersCoupons.AddAsync(userCoupon);
+            await _applicationDbContext.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<bool> CreateCoupons(List<CouponUpsert> coupons, bool usePrefilledData)
         {
             if (usePrefilledData)
@@ -43,7 +68,7 @@ namespace CouponsLtd.Services
             }
 
             await _applicationDbContext.SaveChangesAsync();
-            return await Task.FromResult(true);
+            return true;
         }
     }
 }

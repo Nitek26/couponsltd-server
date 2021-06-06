@@ -13,5 +13,6 @@ namespace CouponsLtd.Data
 
         public DbSet<CouponDAO> Coupons { get; set; }
         public DbSet<UserDAO> Users { get; set; }
+        public DbSet<UserCouponDAO> UsersCoupons { get; set; }
     }
 }
