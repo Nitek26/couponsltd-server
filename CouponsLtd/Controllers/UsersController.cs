@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/v1/users")]
     public class UsersController : ControllerBase

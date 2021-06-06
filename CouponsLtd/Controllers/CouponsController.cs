@@ -1,11 +1,15 @@
-﻿using CouponsLtd.Models;
+﻿using CouponsLtd.Data.Entities;
+using CouponsLtd.Models;
 using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
 using CouponsLtd.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CouponsLtd.Controllers
@@ -18,17 +22,22 @@ namespace CouponsLtd.Controllers
 
         private readonly ILogger<CouponsController> _logger;
         private readonly CouponService _couponService;
+        private readonly IHttpContextAccessor _context;
 
-        public CouponsController(ILogger<CouponsController> logger,CouponService couponService)
+        public CouponsController(ILogger<CouponsController> logger,
+            CouponService couponService, IHttpContextAccessor context)
         {
             _logger = logger;
             this._couponService = couponService;
+            this._context = context;
         }
 
         [HttpPost("searchcoupons")]
         public async Task<IActionResult> SearchCoupons([FromBody] SearchParams searchParams)
         {
-           var x=await  _couponService.GetCoupons();
+            Guid userId = ((UserDAO)_context.HttpContext.Items["User"]).Id;
+
+            var x = await _couponService.GetCoupons();
             var coupons = new List<CouponVM>
             {
                 new CouponVM(){
@@ -47,9 +56,10 @@ namespace CouponsLtd.Controllers
         }
 
         [HttpPost("activatebonus/{couponId:guid}/{promoCode}")]
-        public async Task<IActionResult> ActivateBonus(Guid couponId, Guid userId, string promoCode)
+        public async Task<IActionResult> ActivateBonus(Guid couponId, string promoCode)
         {
-           var result= await _couponService.ActivateCoupon(userId, couponId, promoCode);
+            Guid userId = ((UserDAO)_context.HttpContext.Items["User"]).Id;
+            var result = await _couponService.ActivateCoupon(userId, couponId, promoCode);
             return Ok(result);
         }
     }
