@@ -15,7 +15,7 @@ namespace CouponsLtd.ViewModels
 
         public AuthenticateResponse(UserDAO user, string token)
         {
-            //Id = user.Id;
+            Id = user.Id;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Username = user.UserName;

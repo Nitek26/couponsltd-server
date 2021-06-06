@@ -4,7 +4,6 @@ using CouponsLtd.Helpers;
 using CouponsLtd.UpsertModels;
 using CouponsLtd.ViewModels;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -20,16 +19,15 @@ namespace CouponsLtd.Services
     public class UserService : IUserService
     {
         private readonly AppSettings _appSettings;
-        private readonly ApplicationDbContext _applicationDbContext;
         private readonly IWebHostEnvironment _environment;
+        private readonly UnitOfWork _unitOfWork;
 
-        public UserService(ApplicationDbContext applicationDbContext,
-            IOptions<AppSettings> appSettings, IWebHostEnvironment environment)
+        public UserService(
+            IOptions<AppSettings> appSettings, IWebHostEnvironment environment, UnitOfWork unitOfWork)
         {
-            this._applicationDbContext = applicationDbContext;
-            this._environment = environment;
-            this._appSettings = appSettings.Value;
-
+            _environment = environment;
+            _unitOfWork = unitOfWork;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest model)
@@ -37,7 +35,7 @@ namespace CouponsLtd.Services
             if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
                 return null;
 
-            var user = await _applicationDbContext.Users.SingleOrDefaultAsync(x => x.UserName == model.Username);
+            var user = (await _unitOfWork.Users.GetAsync(0, 1, x => x.UserName == model.Username)).FirstOrDefault();
 
             if (user == null)
                 return null;
@@ -61,7 +59,8 @@ namespace CouponsLtd.Services
                 if (string.IsNullOrWhiteSpace(user.Password))
                     continue;
 
-                if (await _applicationDbContext.Users.AnyAsync(x => x.UserName == user.UserName))
+                var userDAO = (await _unitOfWork.Users.GetAsync(0, 1, x => x.UserName == user.UserName)).FirstOrDefault();
+                if (userDAO != null)
                     continue;
 
                 byte[] passwordHash, passwordSalt;
@@ -78,18 +77,19 @@ namespace CouponsLtd.Services
                     Created = System.DateTime.UtcNow
                 };
 
-                await _applicationDbContext.Users.AddAsync(userDao);
+                _unitOfWork.Users.Insert(userDao);
             }
 
-            await _applicationDbContext.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
 
             return true;
         }
 
-        public UserDAO GetById(Guid id)
+        public async Task<UserDAO> GetById(Guid id)
         {
-            return _applicationDbContext.Users.FirstOrDefault(x => x.Id == id);
+            return (await _unitOfWork.Users.GetAsync(0, 1, x => x.Id == id)).FirstOrDefault();
         }
+
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
             if (password == null) throw new ArgumentNullException("password");

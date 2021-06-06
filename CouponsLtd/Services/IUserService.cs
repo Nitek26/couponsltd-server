@@ -11,6 +11,6 @@ namespace CouponsLtd.Services
     {
         Task<AuthenticateResponse> Authenticate(AuthenticateRequest model);
         Task<bool> CreateUsers(List<UserUpsert> users,bool usePrefilledData);
-        UserDAO GetById(Guid id);
+        Task<UserDAO> GetById(Guid id);
     }
 }

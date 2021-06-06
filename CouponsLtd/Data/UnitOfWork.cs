@@ -1,4 +1,5 @@
 ﻿using CouponsLtd.Data.Entities;
+using System.Threading.Tasks;
 
 namespace CouponsLtd.Data
 {
@@ -42,9 +43,9 @@ namespace CouponsLtd.Data
             }
         }
 
-        public void Commit()
+        public async Task CommitAsync()
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
