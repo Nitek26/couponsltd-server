@@ -26,7 +26,5 @@ namespace CouponsLtd.Controllers
 
             return Ok(response);
         }
-
-      
     }
 }

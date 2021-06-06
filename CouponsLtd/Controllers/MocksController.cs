@@ -1,5 +1,4 @@
-﻿using CouponsLtd.Helpers;
-using CouponsLtd.Services;
+﻿using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,11 +21,9 @@ namespace CouponsLtd.Controllers
             CouponService couponService, IUserService userService)
         {
             _logger = logger;
-            this._couponService = couponService;
-            this._userService = userService;
+            _couponService = couponService;
+            _userService = userService;
         }
-
-        public IWebHostEnvironment Environment { get; }
 
         [HttpPost("addmockcoupons/{usePrefilledData}")]
         public async Task<IActionResult> AddMockCoupons(bool usePrefilledData, [FromBody] List<CouponUpsert> coupons)
