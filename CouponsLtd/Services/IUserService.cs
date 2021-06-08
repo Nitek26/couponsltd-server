@@ -10,7 +10,7 @@ namespace CouponsLtd.Services
     public interface IUserService
     {
         Task<AuthenticateResponse> Authenticate(AuthenticateRequest model);
-        Task<bool> CreateUsers(List<UserUpsert> users,bool usePrefilledData);
+        Task<int> CreateUsers(List<UserUpsert> users,bool usePrefilledData);
         Task<UserDAO> GetById(Guid id);
     }
 }

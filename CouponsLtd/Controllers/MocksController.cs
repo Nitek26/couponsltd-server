@@ -1,6 +1,5 @@
 ﻿using CouponsLtd.Services;
 using CouponsLtd.UpsertModels;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -28,9 +27,7 @@ namespace CouponsLtd.Controllers
         [HttpPost("addmockcoupons/{usePrefilledData}")]
         public async Task<IActionResult> AddMockCoupons(bool usePrefilledData, [FromBody] List<CouponUpsert> coupons)
         {
-            var result = await _couponService.CreateCoupons(coupons, usePrefilledData);
-            if (!result)
-                return BadRequest(new { message = "Something went wrong" });
+            var result = await _couponService.CreateCoupons(coupons, usePrefilledData);         
             return Ok(result);
         }
 
@@ -38,10 +35,6 @@ namespace CouponsLtd.Controllers
         public async Task<IActionResult> CreateMockUsers(bool usePrefilledData, [FromBody] List<UserUpsert> users)
         {
             var result = await _userService.CreateUsers(users, usePrefilledData);
-
-            if (!result)
-                return BadRequest(new { message = "Something went wrong" });
-
             return Ok(result);
         }
     }

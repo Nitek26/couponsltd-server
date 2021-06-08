@@ -17,7 +17,8 @@ namespace CouponsLtd.Mapper
                 {
                     Id = d.Id,
                     Description = d.Description,
-                    Name = d.Name
+                    Name = d.Name,
+                    PromoCode=d.Code
                 };
 
                 mappedData.Add(coupon);
@@ -56,7 +57,8 @@ namespace CouponsLtd.Mapper
                     Id=c.Id,
                     Description = c.Description,
                     Name = c.Name,
-                    IsActived = c.IsActived
+                    IsActived = c.IsActived,
+                    PromoCode=c.PromoCode
                 };
 
                 mappedData.Add(coupon);

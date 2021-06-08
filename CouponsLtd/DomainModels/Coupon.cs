@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CouponsLtd.DomainModels
 {
@@ -11,5 +8,6 @@ namespace CouponsLtd.DomainModels
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsActived { get; set; }
+        public string PromoCode{ get; set; }
     }
 }

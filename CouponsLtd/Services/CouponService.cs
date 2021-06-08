@@ -31,18 +31,28 @@ namespace CouponsLtd.Services
             var activatedCoupons = (await _unitOfWork.UsersCoupons
                 .GetAsync(p.Skip, p.Limit, x => x.UserId == userId));
 
-            var coupons = couponsDAO.MapToCoupon();
+            var mappedCoupons = new List<Coupon>();
 
-            foreach (var active in activatedCoupons)
+            foreach (var c in couponsDAO)
             {
-                var toBeActivated = coupons.FirstOrDefault(x => x.Id == active.CouponId);
+                var coupon = new Coupon()
+                {
+                    Id = c.Id,
+                    Description = c.Description,
+                    Name = c.Name,
+                };
+
+                var toBeActivated = activatedCoupons.FirstOrDefault(x => x.CouponId == c.Id);
                 if (toBeActivated != null)
                 {
-                    toBeActivated.IsActived = true;
+                    coupon.IsActived = true;
+                    coupon.PromoCode = c.Code;
                 }
+
+                mappedCoupons.Add(coupon);
             }
 
-            return coupons;
+            return mappedCoupons;
         }
 
         public async Task<bool> ActivateCoupon(Guid userId, Guid couponId, string promoCode)
@@ -68,8 +78,9 @@ namespace CouponsLtd.Services
             return true;
         }
 
-        public async Task<bool> CreateCoupons(List<CouponUpsert> coupons, bool usePrefilledData)
+        public async Task<int> CreateCoupons(List<CouponUpsert> coupons, bool usePrefilledData)
         {
+            int inserted = 0;
             if (usePrefilledData)
             {
                 coupons = JsonHelper.LoadFromJson<List<CouponUpsert>>(_environment.ContentRootPath + "/Data/Mocks/coupons.json");
@@ -79,19 +90,18 @@ namespace CouponsLtd.Services
             //for bigger data sets it should be bulk update
             foreach (var c in mappedCoupons)
             {
-                var couponDAO = (await _unitOfWork.Coupons.GetAsync(0, 1, x => x.Code == c.Code && x.Name==c.Name)).FirstOrDefault();
+                var couponDAO = (await _unitOfWork.Coupons.GetAsync(0, 1, x => x.Code == c.Code && x.Name == c.Name)).FirstOrDefault();
                 if (couponDAO != null)
                     continue;
                 _unitOfWork.Coupons.Insert(c);
+                inserted++;
             }
 
             await _unitOfWork.CommitAsync();
-            return true;
+            return inserted;
         }
-        private IOrderedQueryable<CouponDAO> OrderingMethod(IQueryable<CouponDAO> query, int order)
+        private IOrderedQueryable<CouponDAO> OrderingMethod(IQueryable<CouponDAO> query, OrderByEnum orderBy)
         {
-            OrderByEnum orderBy = (OrderByEnum)order;
-
             switch (orderBy)
             {
                 case OrderByEnum.Name:

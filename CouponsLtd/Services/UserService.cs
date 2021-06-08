@@ -47,8 +47,9 @@ namespace CouponsLtd.Services
             return new AuthenticateResponse(user, token);
         }
 
-        public async Task<bool> CreateUsers(List<UserUpsert> users, bool usePrefilledData)
+        public async Task<int> CreateUsers(List<UserUpsert> users, bool usePrefilledData)
         {
+            int inserted = 0;
             if (usePrefilledData)
             {
                 users = JsonHelper.LoadFromJson<List<UserUpsert>>(_environment.ContentRootPath + "/Data/Mocks/users.json");
@@ -78,11 +79,12 @@ namespace CouponsLtd.Services
                 };
 
                 _unitOfWork.Users.Insert(userDao);
+                inserted++;
             }
 
             await _unitOfWork.CommitAsync();
 
-            return true;
+            return inserted;
         }
 
         public async Task<UserDAO> GetById(Guid id)
